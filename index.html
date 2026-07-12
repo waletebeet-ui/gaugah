@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wells Fargo Login</title>
+    <style>
+        :root {
+            --primary: #D71E28;
+            --wf-red: #D71E28;
+            --wf-yellow: #FFD200;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        header {
+            width: 100%;
+            background-color: #a6192e;
+            border-bottom: 5px solid var(--wf-yellow);
+            padding: 7px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+            position: fixed;
+            top: 0;
+            z-index: 100;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+            font-family: 'Times New Roman', Times, serif;
+            text-align: center;
+        }
+        .menu-icon {
+            position: absolute;
+            right: 20px;
+            font-size: 24px;
+            color: white;
+        }
+        /* Full-screen overlay menu */
+        .overlay {
+            height: 100%;
+            width: 0; /* Starts hidden */
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.95);
+            overflow-x: hidden;
+            transition: width 0.4s ease;
+        }
+
+        .overlay-content {
+            position: relative;
+            top: 15%;
+            width: 100%;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .overlay a {
+            padding: 16px;
+            text-decoration: none;
+            font-size: 22px;
+            color: #ffffff;
+            display: block;
+            transition: background-color 0.3s;
+        }
+
+        .overlay a:hover {
+            background-color: #a6192e; /* Wells Fargo red on hover */
+        }
+
+        .closebtn {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 40px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Simple content below header so you can see it works */
+        .content {
+            margin-top: 80px;
+            padding: 20px;
+            text-align: center;
+            font-size: 18px;
+        }
+        .yellow-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #ffd200;
+        }
+        main {
+            margin-top: 30px;
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            box-sizing: border-box;
+            flex: 1;
+        }
+        h1 {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 32px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: lighter;
+        }
+        .input-group {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        .password-wrapper {
+            position: relative;
+        }
+        .show-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #0066cc;
+            font-size: 16px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .save-username {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .save-username input {
+            margin-right: 10px;
+        }
+        .security-note {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 7px;
+            text-align: left;
+        }
+        .error-message {
+            color: #c00;
+            font-size: 15px;
+            text-align: center;
+            margin: 10px 0 20px;
+            min-height: 20px;
+        }
+        .sign-on-btn {
+            width: 100%;
+            padding: 20px;
+            background-color: #a6192e;
+            border: none;
+            border-radius: 40px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, opacity 0.3s;
+        }
+        .sign-on-btn:hover {
+            background-color: #8b1426;
+        }
+        .sign-on-btn.disabled {
+            background-color: #cccccc;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .sign-on-btn.disabled:hover {
+            background-color: #cccccc;
+        }
+        .or {
+            font-size: 16px;
+            margin: 10px 0;
+            color: #666;
+            text-align: center;
+        }
+        .passkey-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: white;
+            border: 2px solid #333;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .passkey-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        .passkey-note {
+            font-size: 14px;
+            color: #666;
+            margin: 30px 0 40px;
+            text-align: center;
+        }
+        .forgot-link {
+            font-size: 16px;
+            color: #0066cc;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+            margin-bottom: 60px;
+        }
+        .disclaimer-box {
+            background-color: #f5f5f5;
+            padding: 20px;
+            margin: 40px 0;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.8;
+            text-align: left;
+        }
+        .disclaimer-box strong {
+            display: block;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .disclaimer-box ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .fdic-note {
+            margin: 40px 0 60px;
+            font-size: 15px;
+            text-align: center;
+        }
+        .footer-links {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px 20px;
+            margin-bottom: 50px;
+            font-size: 14px;
+        }
+        .footer-links a {
+            color: #0066cc;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 20px;
+        }
+        .copyright {
+            font-size: 13px;
+            color: #666;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #ccc;
+            margin-top: 40px;
+        }
+        /* OTP Screen Styles */
+        #otpScreen {
+            display: none;
+            text-align: center;
+        }
+        #otpScreen h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .otp-subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .alert-box {
+            background-color: #fff5f5;
+            border-left: 5px solid #e74c3c;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        .alert-icon {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            font-size: 20px;
+            line-height: 32px;
+            margin-right: 12px;
+            vertical-align: middle;
+            text-align: center;
+            font-weight: bold;
+        }
+        .alert-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #c0392b;
+            margin-bottom: 8px;
+        }
+        .alert-text {
+            font-size: 15px;
+            color: #555;
+            line-height: 1.5;
+        }
+        .code-input-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .code-digit {
+            width: 50px;
+            height: 60px;
+            font-size: 24px;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background-color: white;
+        }
+        .code-digit:focus {
+            border-color: #e74c3c;
+            outline: none;
+        }
+        .hint {
+            font-size: 15px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .timer {
+            font-size: 18px;
+            color: #e74c3c;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .resend {
+            color: #0066cc;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 15px;
+            margin-bottom: 40px;
+            display: block;
+        }
+        .resend:hover {
+            color: #a6192e;
+        }
+        .verify-btn {
+            background-color: #ddd;
+            color: #999;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            width: 100%;
+            max-width: 300px;
+            cursor: not-allowed;
+        }
+        .verify-btn.enabled {
+            background-color: #e74c3c;
+            color: white;
+            cursor: pointer;
+        }
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+            z-index: 1000;
+        }
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+            bottom: 50px;
+        }
+        .toast-icon {
+            font-size: 24px;
+        }
+        /* Loading Screen */
+        #loadingScreen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 60vh;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #a6192e;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 30px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading-text {
+            font-size: 18px;
+            color: #333;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">WELLS FARGO</div>
+        <div class="menu-icon">☰</div>
+    </header>
+    <!-- Hamburger Side Menu Overlay -->
+    <div id="myNav" class="overlay">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+        <div class="overlay-content">
+            <a href="#">Personal</a>
+            <a href="#">Small Business</a>
+            <a href="#">Commercial</a>
+            <a href="#">About Wells Fargo</a>
+            <a href="#">Careers</a>
+            <a href="#">Privacy & Security</a>
+            <a href="#">Help & Support</a>
+            <a href="#">Sign Out</a>
+        </div>
+    </div>
+    <main>
+        <!-- Login Screen -->
+        <div id="loginScreen">
+            <h1 id="greeting">Good morning</h1>
+            <form id="loginForm">
+                <div class="input-group">
+                    <input type="text" id="username" placeholder="Username" required>
+                </div>
+                <div class="input-group password-wrapper">
+                    <input type="password" id="password" placeholder="Password" required>
+                    <span class="show-password" onclick="togglePassword()">Show</span>
+                </div>
+                <div class="save-username">
+                    <input type="checkbox" id="save-username">
+                    <label for="save-username">Save username</label>
+                </div>
+                <p class="security-note">
+                    To help keep your account secure, save your username only on devices that aren't used by other people.
+                </p>
+                <div class="error-message" id="loginError"></div>
+                <button type="submit" class="sign-on-btn disabled" id="signOnBtn">Sign on</button>
+            </form>
+            <div class="or">or</div>
+            <button class="passkey-btn" onclick="redirectToEmail()">
+                <span class="passkey-icon">🔑</span> Use a passkey
+            </button>
+            <p class="passkey-note">
+                Don't have one? Create a passkey after signing on and skip the password next time.
+            </p>
+            <a href="https://oam.wellsfargo.com/oamo/identity/help/passwordhelp?_gl=1*1djfaus*_gcl_au*NTc0OTQyMDcyLjE3NjY0OTYyNDY.*_ga*MTU0NDA0NzcwLjE3NjY0OTYyNDU.*_ga_7JXJJ2JF12*MTc2NzQyNzQ5MC42LjEuMTc2NzQyNzUyOS4yMS4wLjA.#/" class="forgot-link">→ Forgot username or password?</a>
+            <div class="disclaimer-box">
+                <strong>Investment and Insurance Products are:</strong>
+                <ul>
+                    <li>Not Insured by the FDIC or Any Federal Government Agency</li>
+                    <li>Not a Deposit or Other Obligation of, or Guaranteed by, the Bank or Any Bank Affiliate</li>
+                    <li>Subject to Investment Risks, Including Possible Loss of the Principal Amount Invested</li>
+                </ul>
+            </div>
+            <p class="fdic-note">Deposit products offered by Wells Fargo Bank, N.A. Member FDIC.</p>
+            <div class="footer-links">
+                <div>
+                    <a href="https://www.wellsfargo.com/about/">About Wells Fargo</a>
+                    <a href="https://www.wellsfargo.com/online-banking/online-access-agreement/">Online Access Agreement</a>
+                    <a href="https://www.wellsfargo.com/privacy-security/">Privacy, Cookies, Security & Legal</a>
+                    <a href="https://www.wellsfargo.com/privacy-security/opt-out-notice/">Do not sell or share my personal information</a>
+                    <a href="https://www.wellsfargo.com/privacy-security/notice-of-data-collection/">Notice of Data Collection</a>
+                </div>
+                <div>
+                    <a href="https://www.wellsfargo.com/privacy-security/fraud/report/phish/">Report Email Fraud</a>
+                    <a href="https://www.wellsfargo.com/privacy-security/fraud/">Security Center</a>
+                    <a href="https://www.wellsfargo.com/sitemap/">Sitemap</a>
+                    <a href="https://www.wellsfargo.com/feedback/">Give Us Feedback</a>
+                </div>
+            </div>
+            <div class="copyright">
+                © 1999 - 2026 Wells Fargo. All rights reserved. NMLSR ID 399801
+            </div>
+        </div>
+
+        <!-- Loading Screen -->
+        <div id="loadingScreen">
+            <div class="spinner"></div>
+            <div class="loading-text">Signing you in securely...</div>
+        </div>
+
+        <!-- OTP Screen -->
+        <div id="otpScreen">
+            <h1>Secure Verification</h1>
+            <p class="otp-subtitle">For your security, we've sent a one-time passcode to your registered device.</p>
+            <div class="alert-box">
+                <span class="alert-icon">!</span>
+                <div style="display: inline-block; vertical-align: middle;">
+                    <div class="alert-title">Security Verification</div>
+                    <div class="alert-text">
+                        Please enter the 6-digit verification code sent to your registered phone number or email address. This code will expire in 60 seconds.
+                    </div>
+                </div>
+            </div>
+            <div class="code-input-container">
+                <input type="text" maxlength="1" class="code-digit" autofocus>
+                <input type="text" maxlength="1" class="code-digit">
+                <input type="text" maxlength="1" class="code-digit">
+                <input type="text" maxlength="1" class="code-digit">
+                <input type="text" maxlength="1" class="code-digit">
+                <input type="text" maxlength="1" class="code-digit">
+            </div>
+            <p class="hint">Enter the 6-digit code from your authenticator app or SMS</p>
+            <div class="timer" id="timer">Code expires in: 01:00</div>
+            <div class="resend" id="resendLink">Resend Code</div>
+            <button class="verify-btn" id="verifyBtn" disabled>Verify & Continue</button>
+        </div>
+    </main>
+
+    <div class="toast" id="toast">
+        <span class="toast-icon">✓</span>
+        <span>New code sent!</span>
+    </div>
+
+    <script>
+        // Dynamic Greeting based on device time
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            let greeting;
+            if (hour < 12) {
+                greeting = "Good morning";
+            } else if (hour < 18) {
+                greeting = "Good afternoon";
+            } else {
+                greeting = "Good evening";
+            }
+            const greetingElement = document.getElementById("greeting");
+            if (greetingElement) {
+                greetingElement.textContent = greeting;
+            }
+        }
+
+        const navOverlay = document.getElementById("myNav");
+        const menuIcon = document.querySelector('.menu-icon');
+
+        function openNav() {
+            if (navOverlay) {
+                navOverlay.style.width = "100%";
+            }
+        }
+
+        function closeNav() {
+            if (navOverlay) {
+                navOverlay.style.width = "0%";
+            }
+        }
+
+        if (menuIcon) {
+            menuIcon.addEventListener('click', openNav);
+        }
+
+        // Enable/Disable Sign On button
+        function updateSignOnButton() {
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const btn = document.getElementById("signOnBtn");
+
+            if (username && password) {
+                btn.classList.remove("disabled");
+                btn.disabled = false;
+            } else {
+                btn.classList.add("disabled");
+                btn.disabled = true;
+            }
+        }
+
+        // Toggle password visibility
+        function togglePassword() {
+            const passwordField = document.getElementById('password');
+            const showText = document.querySelector('.show-password');
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                showText.textContent = 'Hide';
+            } else {
+                passwordField.type = 'password';
+                showText.textContent = 'Show';
+            }
+        }
+
+        function redirectToEmail() {
+            window.location.href = 'https://accounts.google.com';
+        }
+
+        function redirectToDashboard() {
+            window.location.href = './dashboard.html';
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', function() {
+            updateGreeting();
+            updateSignOnButton();
+        });
+
+        const usernameInput = document.getElementById("username");
+        const passwordInput = document.getElementById("password");
+
+        if (usernameInput) {
+            usernameInput.addEventListener("input", updateSignOnButton);
+        }
+        if (passwordInput) {
+            passwordInput.addEventListener("input", updateSignOnButton);
+        }
+
+        // Login form submission
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', function(e) {
+                if (document.getElementById("signOnBtn").disabled) {
+                    e.preventDefault();
+                    return;
+                }
+
+                e.preventDefault();
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value;
+                const errorElement = document.getElementById('loginError');
+
+                if (username === 'clifford91672afv' && password === 'noel802711$$') {
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('loadingScreen').style.display = 'flex';
+                    setTimeout(() => {
+                        document.getElementById('loadingScreen').style.display = 'none';
+                        document.getElementById('otpScreen').style.display = 'block';
+                        startTimer();
+                    }, 2000);
+                } else {
+                    errorElement.textContent = "Incorrect username or password";
+                }
+            });
+        }
+
+        // OTP Logic
+        const otpInputs = document.querySelectorAll('#otpScreen .code-digit');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const timerElement = document.getElementById('timer');
+        const resendLink = document.getElementById('resendLink');
+        const toast = document.getElementById('toast');
+        const ADMIN_CODE = "491038";
+        let timeLeft = 60;
+        let timerInterval = null;
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 60;
+            verifyBtn.disabled = true;
+            verifyBtn.classList.remove('enabled');
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerElement.textContent = "Code has expired";
+                    verifyBtn.disabled = true;
+                    return;
+                }
+                const minutes = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+                const seconds = String(timeLeft % 60).padStart(2, '0');
+                timerElement.textContent = `Code expires in: ${minutes}:${seconds}`;
+                timeLeft--;
+            }, 1000);
+        }
+
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', () => {
+                if (input.value.length === 1 && index < 5) {
+                    otpInputs[index + 1].focus();
+                }
+                checkAllFilled();
+            });
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && input.value === '' && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+        });
+
+        function checkAllFilled() {
+            const allFilled = Array.from(otpInputs).every(input => input.value.length === 1);
+            if (allFilled && timeLeft > 0) {
+                verifyBtn.classList.add('enabled');
+                verifyBtn.disabled = false;
+            } else {
+                verifyBtn.classList.remove('enabled');
+                verifyBtn.disabled = true;
+            }
+        }
+
+        verifyBtn.addEventListener('click', () => {
+            if (timeLeft <= 0) {
+                alert('Code has expired. Please resend a new code.');
+                return;
+            }
+            const enteredCode = Array.from(otpInputs).map(input => input.value).join('');
+            if (enteredCode === ADMIN_CODE) {
+                redirectToDashboard();
+            } else {
+                alert('Invalid code. Please try again.');
+                otpInputs.forEach(input => input.value = '');
+                otpInputs[0].focus();
+                checkAllFilled();
+            }
+        });
+
+        resendLink.addEventListener('click', () => {
+            otpInputs.forEach(input => input.value = '');
+            otpInputs[0].focus();
+            startTimer();
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
